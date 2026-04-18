@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Calculator - Vue 2</title>
+  
+  <!-- CDN Vue 2 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+  <style>
+    /* Reset global */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      overflow: hidden;
+    }
+
+    .main-wrapper {
+      width: 100vw;
+      height: 100vh;
+      background-color: #000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .body {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .stars-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 1px;
+      height: 1px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .stars {
+      position: absolute;
+      width: 400vw;
+      height: 400vw;
+      background-repeat: repeat;
+      pointer-events: none;
+    }
+
+    .layer-1 {
+      background-image: radial-gradient(circle at 20% 30%, #ff4d4d 1px, transparent 1px),
+                        radial-gradient(circle at 70% 10%, #ffae42 1.5px, transparent 1.5px);
+      background-size: 500px 500px;
+      animation: orbitRotate 200s linear infinite;
+      opacity: 0.4;
+    }
+
+    .layer-2 {
+      background-image: radial-gradient(circle at 15% 75%, #ffffff 1.2px, transparent 1.2px),
+                        radial-gradient(circle at 85% 25%, #fdfbfb 1.5px, transparent 1.5px);
+      background-size: 400px 400px;
+      animation: orbitRotate 150s linear infinite reverse;
+      opacity: 0.6;
+    }
+
+    .layer-3 {
+      background-image: radial-gradient(circle at 35% 60%, #a2cffe 2px, transparent 2px),
+                        radial-gradient(circle at 75% 30%, #ffffff 2.2px, transparent 2.2px);
+      background-size: 300px 300px;
+      animation: orbitRotate 100s linear infinite;
+    }
+
+    @keyframes orbitRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .vscode-box {
+      position: relative;
+      background-color: rgba(25, 25, 25, 0.7);
+      backdrop-filter: blur(15px);
+      padding: 30px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      width: 320px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+      z-index: 10;
+    }
+
+    .header { color: #6a9955; font-size: 0.9rem; margin-bottom: 20px; font-family: monospace; }
+
+    .input, .select {
+      background-color: rgba(60, 60, 60, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #9cdcfe;
+      padding: 12px;
+      width: 100%;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      outline: none;
+      border-radius: 10px;
+      font-family: monospace;
+    }
+
+    .button {
+      background: linear-gradient(135deg, rgba(14, 99, 156, 0.8) 0%, rgba(17, 119, 187, 0.8) 100%);
+      color: white;
+      border: none;
+      padding: 14px;
+      width: 100%;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .button:hover { transform: scale(1.02); background: #1177bb; }
+    .button:active { transform: scale(0.98); }
+
+    .output {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: rgba(15, 15, 15, 0.6);
+      color: #dcdcdc;
+      border-radius: 10px;
+      border-left: 4px solid #569cd6;
+      font-family: monospace;
+    }
+    .keyword { color: #569cd6; }
+    .number { color: #b5cea8; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="main-wrapper">
+    <div class="body">
+      <!-- Estrelas -->
+      <div class="stars-container">
+        <div class="stars layer-1"></div>
+        <div class="stars layer-2"></div>
+        <div class="stars layer-3"></div>
+      </div>
+      
+      <!-- Calculadora -->
+      <div class="vscode-box">
+        <div class="header">// Fullscreen_Space.vue</div>
+        
+        <input type="number" class="input" v-model.number="numero1" placeholder="0" />
+        
+        <select class="select" v-model="operacao">
+          <option value="+">Add (+)</option>
+          <option value="-">Sub (-)</option>
+          <option value="*">Mul (*)</option>
+          <option value="/">Div (/)</option>
+        </select>
+        
+        <input type="number" class="input" v-model.number="numero2" placeholder="0" />
+        
+        <button class="button" @click="realizarCalculo">RUN CALCULATION</button>
+        
+        <div class="output">
+          <span class="keyword">const</span> result = <span class="number">{{ visorResultado }}</span>;
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  new Vue({
+    el: '#app',
+    data: function() {
+      return {
+        numero1: 0,
+        numero2: 0,
+        operacao: '+',
+        visorResultado: 0
+      }
+    },
+    methods: {
+      realizarCalculo: function() {
+        // No Vue 2, acessamos os dados usando "this"
+        var n1 = parseFloat(this.numero1) || 0;
+        var n2 = parseFloat(this.numero2) || 0;
+        var res = 0;
+        
+        if (this.operacao === '+') res = n1 + n2;
+        else if (this.operacao === '-') res = n1 - n2;
+        else if (this.operacao === '*') res = n1 * n2;
+        else res = n2 !== 0 ? (n1 / n2).toFixed(2) : 'Infinity';
+        
+        this.visorResultado = res;
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
